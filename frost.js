@@ -15,11 +15,11 @@
   const ACCESS_KEY = 'az2026';
   const LINK = 'https://guns.lol/frostqqq';
   const DEFAULT_MODEL = 'gemini-3.6-flash';
-  const FALLBACK_MODELS = ['gemini-3.5-flash-lite', 'gemini-3.8-flash'];
+  const FALLBACK_MODELS = ['gemini-3.5-flash-lite', 'gemini-3.8-flash', 'gemini-3.1-flash-lite'];
   const STORE = 'frost.algo.cfg.v1';
   const HELLO_D = 'M36 222 C78 205 112 120 132 46 C140 16 172 18 162 62 C152 108 128 172 122 208 C120 226 100 222 106 192 C112 160 128 138 152 134 C180 130 196 156 188 184 C184 204 196 216 214 198 C230 184 238 152 258 142 C282 130 296 160 268 176 C248 186 226 192 232 208 C238 224 272 216 294 190 C308 172 320 96 338 48 C346 20 378 22 368 66 C360 110 340 172 342 204 C344 224 368 214 386 190 C400 172 412 96 430 48 C438 20 470 22 460 66 C452 110 432 172 434 204 C436 224 460 214 476 186 C484 170 500 148 522 146 C554 144 564 196 528 208 C500 216 482 186 498 160 C512 140 552 130 596 150';
 
-  const cfg = Object.assign({ key: '', model: DEFAULT_MODEL, remember: true, submit: false, delay: 1.2 }, readCfg());
+  const cfg = Object.assign({ key: '', model: DEFAULT_MODEL, remember: true, submit: false, delay: 1.2, maxPerMin: 6, cps: 9 }, readCfg());
   function readCfg() { try { return JSON.parse(localStorage.getItem(STORE) || '{}') || {}; } catch (e) { return {}; } }
   function saveCfg() {
     try {
@@ -29,7 +29,7 @@
     } catch (e) { /* storage blocked */ }
   }
 
-  const S = { auto: false, busy: false, unlocked: false, destroyed: false, solved: 0, tab: 'main' };
+  const S = { auto: false, busy: false, unlocked: false, destroyed: false, solved: 0, tab: 'main', calls: 0, cacheHits: 0, abort: false, pauseUntil: 0 };
   const REDUCED = (function () { try { return matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { return false; } })();
 
   const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -91,6 +91,7 @@ h2,h3,p{margin:0}
 .btn{display:inline-flex;align-items:center;justify-content:center;padding:11px 22px;border-radius:13px;font-weight:600;background:linear-gradient(135deg,#5d8bff,#7fd0ff);color:#04112b;box-shadow:0 10px 26px rgba(79,124,255,.38);transition:transform .2s,box-shadow .2s,filter .2s}
 .btn:hover{transform:translateY(-1px);filter:brightness(1.06);box-shadow:0 14px 30px rgba(79,124,255,.5)}
 .btn:active{transform:translateY(1px) scale(.985)}
+.btn.stop{background:linear-gradient(135deg,#ff6b8a,#ff9a6b);color:#2a0612;box-shadow:0 10px 26px rgba(255,107,138,.35)}
 .btn.soft{background:rgba(255,255,255,.08);color:var(--frost);box-shadow:none;border:1px solid var(--line)}
 .btn.soft:hover{background:rgba(255,255,255,.13);box-shadow:none}
 .key .btn{width:100%}
@@ -255,7 +256,7 @@ h2,h3,p{margin:0}
       <button class="tab" data-tab="why">Why?</button>
       <button class="tab" data-tab="credits">Credits</button>
     </nav>
-    <div class="railfoot">algoritmika · v1.0</div>
+    <div class="railfoot">algoritmika · v1.1</div>
   </aside>
 
   <section class="content">
@@ -287,13 +288,17 @@ h2,h3,p{margin:0}
         <div class="grid2">
           <div class="opt"><div class="row"><div><b>Auto-submit</b><small>Cavabdan sonra Yoxla / Növbəti düyməsini basır</small></div>
             <button class="sw" id="swSubmit" role="switch" aria-checked="false" aria-label="Auto-submit"><i></i></button></div></div>
-          <div class="opt"><b>Gecikmə</b> <small id="delayTxt" class="inl"></small>
+          <div class="opt"><b>Gecikmə</b> <small id="delayTxt"></small>
             <input class="rng" id="delay" type="range" min="0" max="6" step="0.2"></div>
+          <div class="opt"><b>API limiti</b> <small id="limitTxt"></small>
+            <input class="rng" id="limit" type="range" min="1" max="20" step="1"></div>
+          <div class="opt"><b>Yazma sürəti</b> <small id="cpsTxt"></small>
+            <input class="rng" id="cps" type="range" min="3" max="25" step="1"></div>
         </div>
         <div class="acts">
           <button class="btn" id="btnSolve">İndi həll et</button>
           <label class="chk"><input type="checkbox" id="chkRemember"> açarı yadda saxla</label>
-          <span class="stats" id="stats">0 həll edildi</span>
+          <span class="stats" id="stats">0 həll · 0 sorğu</span>
         </div>
         <div class="log" id="log"></div>
       </div>
@@ -382,7 +387,7 @@ h2,h3,p{margin:0}
     intro: $('#intro'), veil: $('#veil'), keyStage: $('#keyStage'), keyCard: $('#keyCard'), keyIn: $('#keyIn'),
     kMsg: $('#kMsg'), keyGo: $('#keyGo'), win: $('#win'), ind: $('#ind'), dot: $('#dot'), statusTxt: $('#statusTxt'),
     swAuto: $('#swAuto'), autoCard: $('#autoCard'), swSubmit: $('#swSubmit'), apiKey: $('#apiKey'), model: $('#model'),
-    keyBox: $('#keyBox'), delay: $('#delay'), delayTxt: $('#delayTxt'), remember: $('#chkRemember'), stats: $('#stats'),
+    keyBox: $('#keyBox'), delay: $('#delay'), delayTxt: $('#delayTxt'), limit: $('#limit'), limitTxt: $('#limitTxt'), cps: $('#cps'), cpsTxt: $('#cpsTxt'), remember: $('#chkRemember'), stats: $('#stats'),
     log: $('#log'), pill: $('#pill'), wm: $('#wm')
   };
 
@@ -405,7 +410,7 @@ h2,h3,p{margin:0}
   }
   function ghost(on) { host.toggleAttribute('data-busy', !!on); }
   function setSwitch(btn, on) { btn.setAttribute('aria-checked', on ? 'true' : 'false'); }
-  function updateStats() { el.stats.textContent = S.solved + ' həll edildi'; }
+  function updateStats() { el.stats.textContent = S.solved + ' həll · ' + S.calls + ' sorğu'; }
   function flashKeyBox() {
     el.keyBox.classList.remove('flash');
     void el.keyBox.offsetWidth;
@@ -509,7 +514,7 @@ h2,h3,p{margin:0}
 
   // ───────────────────────── window ─────────────────────────
   function placeWindow() {
-    const w = Math.min(740, innerWidth - 24), h = Math.min(510, innerHeight - 24);
+    const w = Math.min(740, innerWidth - 24), h = Math.min(580, innerHeight - 24);
     el.win.style.width = w + 'px';
     el.win.style.height = h + 'px';
     el.win.style.left = Math.max(12, (innerWidth - w) / 2) + 'px';
@@ -688,8 +693,10 @@ h2,h3,p{margin:0}
     if (e.matches(DROP_SEL)) return 'dropzone';
     if (tk.some((t) => DROP_TOK.test(t) || (/drop/.test(t) && !/drop-?down|drop-?shadow|dropcap|dropped|dropping|dropover/.test(t)))) return 'dropzone';
     if (tag === 'BUTTON' || role === 'button' || (tag === 'INPUT' && /^(button|submit)$/i.test(e.type))) return 'button';
-    if (/^(DIV|SECTION|LI|SPAN|TD|P|ARTICLE)$/.test(tag) && e.children.length <= 8) {
+    if (/^(DIV|SECTION|LI|SPAN|TD|P|ARTICLE|IMG|FIGURE|A)$/.test(tag) && e.children.length <= 8) {
       const cs = getComputedStyle(e);
+      if (/^(grab|grabbing|move)$/.test(cs.cursor) && !(e.parentElement && getComputedStyle(e.parentElement).cursor === cs.cursor)) return 'draggable';
+      if (tag === 'IMG' || tag === 'A' || tag === 'FIGURE') return null;
       if ((cs.borderTopStyle === 'dashed' || cs.borderLeftStyle === 'dashed' || cs.outlineStyle === 'dashed') && parseFloat(cs.borderTopWidth || 0) + parseFloat(cs.borderLeftWidth || 0) + parseFloat(cs.outlineWidth || 0) > 0) return 'dropzone';
     }
     return null;
@@ -854,7 +861,15 @@ h2,h3,p{margin:0}
     })(document.body);
     const text = out.replace(/[ \t]+/g, ' ').replace(/ ?\n ?/g, '\n').replace(/\n{3,}/g, '\n\n').trim();
 
-    const sig = hash(text.replace(/\b\d{1,2}:\d{2}(:\d{2})?\b/g, '') + '|' + items.length);
+    // signature that survives our own actions: ignore ids, dropzone contents, where draggables currently sit and clocks
+    let sigText = text;
+    for (let k = 0; k < 6; k++) {
+      const nx = sigText.replace(/⟦f\d+ dropzone⟧\{[^{}]*\}/g, '⟦dz⟧');
+      if (nx === sigText) break;
+      sigText = nx;
+    }
+    sigText = sigText.replace(/⟦[^⟧]*⟧/g, '⟦⟧').replace(/\b\d{1,2}:\d{2}(:\d{2})?\b/g, '');
+    const sig = hash(sigText + '|' + items.filter((i) => i.kind !== 'dropzone' && i.kind !== 'button').map((i) => i.kind + ':' + i.label).sort().join(';'));
     return { reg, items, text, sig, answerable: items.some((i) => i.kind !== 'button') };
   }
 
@@ -880,12 +895,22 @@ Rules:
 - If there is no question to answer, return {"kind":"none","actions":[]}.
 Answer in the language of the question. Output JSON only, no markdown.`;
 
+  const callTimes = [];                 // timestamps of real API requests (rolling minute)
+  const modelBlock = new Map();         // model -> blocked until (ms)
   function explainHttp(status, body) {
     const m = (body && body.error && body.error.message) || '';
     if (status === 400 && /api key/i.test(m)) return 'Gemini API açarı yanlışdır.';
     if (status === 403) return 'Gemini icazə vermədi (403): açarı və ya region məhdudiyyətini yoxla.';
-    if (status === 429) return 'Gemini limiti doldu (429). Bir az gözlə.';
+    if (status === 429) return 'Gemini limiti doldu (429).';
     return 'Gemini xətası ' + status + (m ? ': ' + m.slice(0, 140) : '');
+  }
+  function retryAfterOf(j) {
+    try {
+      const d = ((j && j.error && j.error.details) || []).find((x) => x && x.retryDelay);
+      if (d) { const m = String(d.retryDelay).match(/([\d.]+)s/); if (m) return Math.ceil(parseFloat(m[1])); }
+    } catch (e) { /* ignore */ }
+    const m2 = ((j && j.error && j.error.message) || '').match(/retry in ([\d.]+)s/i);
+    return m2 ? Math.ceil(parseFloat(m2[1])) : 0;
   }
   async function callModel(model, task) {
     const url = 'https://generativelanguage.googleapis.com/v1beta/models/' + encodeURIComponent(model) + ':generateContent';
@@ -895,9 +920,9 @@ Answer in the language of the question. Output JSON only, no markdown.`;
       contents: [{ role: 'user', parts: [{ text: JSON.stringify(payload) }] }],
       generationConfig: { responseMimeType: 'application/json' }
     };
-    let lastErr;
-    for (let attempt = 0; attempt < 3; attempt++) {
+    for (let attempt = 0; attempt < 2; attempt++) {
       let res;
+      S.calls++; callTimes.push(Date.now()); updateStats();
       try {
         res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-goog-api-key': cfg.key }, body: JSON.stringify(body) });
       } catch (e) {
@@ -911,11 +936,12 @@ Answer in the language of the question. Output JSON only, no markdown.`;
         if (!text) throw new Error('Gemini boş cavab qaytardı' + (j && j.promptFeedback && j.promptFeedback.blockReason ? ' (' + j.promptFeedback.blockReason + ')' : '') + '.');
         return parseJson(text);
       }
-      const err = Object.assign(new Error(explainHttp(res.status, j)), { status: res.status });
-      if (res.status === 429 || res.status >= 500) { lastErr = err; await sleep(1500 * (attempt + 1)); continue; }
-      throw err;
+      // 429 is never retried here: every retry would burn more quota. The caller switches model / pauses instead.
+      if (res.status === 429) throw Object.assign(new Error(explainHttp(429, j)), { status: 429, daily: /per.?day/i.test(JSON.stringify(j || {})), retryAfter: retryAfterOf(j) });
+      if (res.status >= 500 && attempt === 0) { await sleep(1500); continue; }
+      throw Object.assign(new Error(explainHttp(res.status, j)), { status: res.status });
     }
-    throw lastErr;
+    throw new Error('Gemini cavab vermədi.');
   }
   function parseJson(text) {
     const clean = text.trim().replace(/^```(?:json)?\s*/i, '').replace(/```\s*$/, '');
@@ -925,16 +951,27 @@ Answer in the language of the question. Output JSON only, no markdown.`;
     throw new Error('Gemini cavabı JSON deyil.');
   }
   async function askGemini(task) {
-    const models = [cfg.model || DEFAULT_MODEL].concat(FALLBACK_MODELS.filter((m) => m !== cfg.model));
-    let last;
-    for (const m of models) {
+    const chain = [cfg.model || DEFAULT_MODEL].concat(FALLBACK_MODELS.filter((m) => m !== cfg.model));
+    let last = null, soonest = Infinity;
+    for (const m of chain) {
+      const until = modelBlock.get(m) || 0;
+      if (until > Date.now()) { if (until - Date.now() < 3500e3) soonest = Math.min(soonest, until); continue; }
       try { return await callModel(m, task); } catch (e) {
         last = e;
-        if (e.status === 404 || (e.status === 400 && /model/i.test(e.message))) { log('dim', m + ' mövcud deyil, növbəti model sınanır…'); continue; }
+        if (e.status === 404 || (e.status === 400 && /model/i.test(e.message))) { modelBlock.set(m, Date.now() + 3600e3); log('dim', m + ' mövcud deyil, növbəti model…'); continue; }
+        if (e.status === 429) {
+          const wait = e.daily ? 3600e3 : Math.max(20, e.retryAfter || 60) * 1000;
+          modelBlock.set(m, Date.now() + wait);
+          if (!e.daily) soonest = Math.min(soonest, Date.now() + wait);
+          log('dim', m + ' limitdədir (' + (e.daily ? 'gündəlik kvota' : Math.round(wait / 1000) + ' san') + '), növbəti model…');
+          continue;
+        }
         throw e;
       }
     }
-    throw last;
+    const secs = soonest < Infinity ? Math.max(5, Math.ceil((soonest - Date.now()) / 1000)) : 1800;
+    S.pauseUntil = Date.now() + secs * 1000;
+    throw Object.assign(new Error('Bütün modellər limitdədir (kvota proyekt və model üzrə sayılır). ' + (secs >= 1800 ? 'Gündəlik kvota bitib: sabah (Pasifik vaxtı ilə gecə yarısı) yenilənir və ya AI Studio-da billing aç.' : secs + ' saniyə sonra yenidən sınayacağam.')), { rateLimited: true, secs: secs });
   }
 
   // ───────────────────────── executor ─────────────────────────
@@ -1020,11 +1057,13 @@ Answer in the language of the question. Output JSON only, no markdown.`;
     src.dispatchEvent(ev('dragstart', a.x, a.y));
     await sleep(50);
     src.dispatchEvent(ev('drag', a.x, a.y));
-    dst.dispatchEvent(ev('dragenter', b.x, b.y));
-    dst.dispatchEvent(ev('dragover', b.x, b.y));
+    const hit = document.elementFromPoint(b.x, b.y);
+    const tgt = hit && dst.contains(hit) ? hit : dst;      // listeners are often on an inner child; events still bubble to dst
+    tgt.dispatchEvent(ev('dragenter', b.x, b.y));
+    tgt.dispatchEvent(ev('dragover', b.x, b.y));
     await sleep(60);
-    dst.dispatchEvent(ev('dragover', b.x, b.y));
-    dst.dispatchEvent(ev('drop', b.x, b.y));
+    tgt.dispatchEvent(ev('dragover', b.x, b.y));
+    tgt.dispatchEvent(ev('drop', b.x, b.y));
     src.dispatchEvent(ev('dragend', b.x, b.y));
   }
 
@@ -1057,18 +1096,21 @@ Answer in the language of the question. Output JSON only, no markdown.`;
     if (rd.bottom < 0 || rd.top > innerHeight) { bringIntoView(dst); await sleep(90); }
     const snap = () => { const r = src.getBoundingClientRect(); return { parent: src.parentElement, x: Math.round(r.left), y: Math.round(r.top), dl: dst.innerHTML.length }; };
     const before = snap();
+    const bodyBefore = hash(document.body.innerHTML);
     const changed = () => {
       if (!src.isConnected || !dst.isConnected || dst.contains(src)) return true;
       const s = snap();
       return s.parent !== before.parent || Math.abs(s.x - before.x) > 3 || Math.abs(s.y - before.y) > 3 || s.dl !== before.dl;
     };
-    const order = src.draggable === true ? ['html5', 'pointer'] : ['pointer', 'html5'];
+    const order = (src.draggable === true ? ['html5', 'pointer'] : ['pointer', 'html5']).concat(['click']);
     for (const m of order) {
-      if (m === 'html5') await html5Drag(src, dst); else await pointerDrag(src, dst);
+      if (m === 'html5') await html5Drag(src, dst);
+      else if (m === 'pointer') await pointerDrag(src, dst);
+      else { await clickEl(src); await sleep(250); await clickEl(dst); }       // some UIs: click the piece, then the slot
       await sleep(380);
       if (changed()) return m;
     }
-    return 'nochange';
+    return hash(document.body.innerHTML) !== bodyBefore ? 'unverified' : 'nochange';
   }
 
   function isChecked(ent) {
@@ -1097,7 +1139,7 @@ Answer in the language of the question. Output JSON only, no markdown.`;
       const s = get(a.from), d = get(a.to);
       const how = await dragTo(s.el, d.el);
       if (how === 'nochange') throw new Error('sürüşdürmə təsir etmədi: ' + (s.label || s.kind));
-      return (how === 'already' ? 'artıq yerindədir: ' : 'sürüşdürüldü (' + how + '): ') + (s.label || s.kind);
+      return (how === 'already' ? 'artıq yerindədir: ' : how === 'unverified' ? 'sürüşdürüldü (səhifə dəyişdi, yerləşməsi təsdiqlənmədi): ' : 'sürüşdürüldü (' + how + '): ') + (s.label || s.kind);
     }
     throw new Error('naməlum əməliyyat: ' + a.op);
   }
@@ -1136,7 +1178,7 @@ Answer in the language of the question. Output JSON only, no markdown.`;
     };
     let ok = 0, fail = 0;
     for (const a of actions) {
-      if (S.destroyed) break;
+      if (S.destroyed || S.abort) break;
       try { log('dim', await doAction(a, get)); ok++; } catch (e) { fail++; log('err', 'alınmadı: ' + e.message); }
       await sleep(jit(Math.max(0, cfg.delay) * 1000));
     }
@@ -1157,63 +1199,290 @@ Answer in the language of the question. Output JSON only, no markdown.`;
     if (b) { log('info', 'Növbəti düyməsi basılır'); await clickEl(b); }
   }
 
+  // ───────────────────────── keyboard trainer (solved locally: zero API calls) ─────────────────────────
+  const AZ_CODE = { 'ə': ['Quote', 222], 'ü': ['KeyW', 87], 'ö': ['BracketLeft', 219], 'ğ': ['BracketRight', 221], 'ı': ['Semicolon', 186], 'ç': ['Comma', 188], 'ş': ['Period', 190], '.': ['Slash', 191], '-': ['Minus', 189], '=': ['Equal', 187], ' ': ['Space', 32], '\n': ['Enter', 13] };
+  function keyFor(ch) {
+    const lower = ch.toLocaleLowerCase('az');
+    const hit = AZ_CODE[lower];
+    let code = '', kc = 0;
+    if (hit) { code = hit[0]; kc = hit[1]; }
+    else if (/^[a-z]$/.test(lower)) { code = 'Key' + lower.toUpperCase(); kc = lower.toUpperCase().charCodeAt(0); }
+    else if (/^[0-9]$/.test(ch)) { code = 'Digit' + ch; kc = 48 + Number(ch); }
+    else kc = ch.charCodeAt(0);
+    return { key: ch === '\n' ? 'Enter' : ch, code: code, kc: kc, shift: ch !== lower, ch: ch.codePointAt(0) };
+  }
+  function fireKey(type, o, target) {
+    const ev = new KeyboardEvent(type, { key: o.key, code: o.code, keyCode: o.kc, which: o.kc, charCode: type === 'keypress' ? o.ch : 0, shiftKey: !!o.shift, bubbles: true, cancelable: true, composed: true, view: window });
+    try {
+      Object.defineProperty(ev, 'keyCode', { get: () => o.kc });
+      Object.defineProperty(ev, 'which', { get: () => o.kc });
+      if (type === 'keypress') Object.defineProperty(ev, 'charCode', { get: () => o.ch });
+    } catch (x) { /* ignore */ }
+    return target.dispatchEvent(ev);
+  }
+  function keyTarget(strat) {
+    if (strat === 1) return document;
+    if (strat === 2) return window;
+    const a = document.activeElement;
+    return (!a || a === host || a === document.documentElement) ? document.body : a;
+  }
+  async function pressChar(ch, strat) {
+    const o = keyFor(ch);
+    const t = keyTarget(strat || 0);
+    if (o.shift) fireKey('keydown', { key: 'Shift', code: 'ShiftLeft', kc: 16, shift: true, ch: 0 }, t);
+    const d = fireKey('keydown', o, t);
+    const p = fireKey('keypress', o, t);
+    if (d && p && ch !== '\n') {
+      if ((t.tagName === 'INPUT' || t.tagName === 'TEXTAREA') && !t.readOnly) {
+        const proto = t.tagName === 'TEXTAREA' ? HTMLTextAreaElement.prototype : HTMLInputElement.prototype;
+        Object.getOwnPropertyDescriptor(proto, 'value').set.call(t, t.value + ch);
+        t.dispatchEvent(new InputEvent('input', { bubbles: true, inputType: 'insertText', data: ch }));
+      } else if (t.isContentEditable) {
+        try { document.execCommand('insertText', false, ch); } catch (x) { /* ignore */ }
+      }
+    }
+    fireKey('keyup', o, t);
+    if (o.shift) fireKey('keyup', { key: 'Shift', code: 'ShiftLeft', kc: 16, shift: false, ch: 0 }, t);
+  }
+
+  const LEAF_BAD = /^(SCRIPT|STYLE|NOSCRIPT|SVG|svg|INPUT|TEXTAREA|SELECT|BUTTON|KBD|A|OPTION|IMG|CANVAS|IFRAME|BR)$/;
+  function isLeaf1(e) {
+    if (e.children.length || LEAF_BAD.test(e.tagName)) return false;
+    const t = e.textContent;
+    if (!t || t.length !== 1) return false;
+    if (e.closest('button,[role="button"],kbd,a,nav,select')) return false;
+    const cs = getComputedStyle(e);
+    return cs.display !== 'none' && cs.visibility !== 'hidden';
+  }
+  function lcaOf(a, b) {
+    const s = new Set();
+    for (let p = a; p; p = p.parentElement) s.add(p);
+    for (let p = b; p; p = p.parentElement) if (s.has(p)) return p;
+    return document.body;
+  }
+  // Finds the text a typing trainer shows: a block of >= 10 one-character elements that reads like language
+  // (repeated letters), and is not the on-screen keyboard (every key appears once).
+  function detectTyping() {
+    const cand = [];
+    for (const e of document.body.querySelectorAll('*')) {
+      if (!isLeaf1(e) || /^[\s\u00a0]$/.test(e.textContent)) continue;
+      const r = e.getBoundingClientRect();
+      if (r.width < 1 || r.height < 1) continue;
+      cand.push({ el: e, ch: e.textContent, top: r.top, bottom: r.bottom });
+    }
+    if (cand.length < 10) return null;
+    cand.sort((a, b) => a.top - b.top);
+    const clusters = [];
+    for (const c of cand) {
+      const last = clusters[clusters.length - 1];
+      if (last && c.top <= last.bottom + 45) { last.items.push(c); last.bottom = Math.max(last.bottom, c.bottom); } else clusters.push({ items: [c], bottom: c.bottom });
+    }
+    let best = null;
+    for (const cl of clusters) {
+      const n = cl.items.length;
+      if (n < 10) continue;
+      const chars = cl.items.map((x) => x.ch);
+      const letters = chars.filter((c) => /\p{L}/u.test(c)).length;
+      const distinct = new Set(chars.map((c) => c.toLowerCase())).size;
+      if (letters / n < 0.55 || distinct / n > 0.8) continue;
+      if (!best || n > best.items.length) best = cl;
+    }
+    if (!best) return null;
+    const ordered = best.items.map((x) => x.el).sort((a, b) => (a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1));
+    const root = lcaOf(ordered[0], ordered[ordered.length - 1]);
+    const leaves = Array.from(root.querySelectorAll('*')).filter(isLeaf1);
+    if (leaves.length < 10) return null;
+    const text = leaves.map((e) => e.textContent).join('');
+    return { root: root, leaves: leaves, text: text, sig: hash(text) };
+  }
+  function styleSig(e) {
+    const c = getComputedStyle(e);
+    return [c.color, c.backgroundColor, c.fontWeight, c.textDecorationLine, c.borderTopWidth, c.borderTopColor, c.outlineWidth, c.boxShadow, c.opacity].join('|');
+  }
+  const CUR_RX = /(^|[-_\s])(cur|current|active|caret|cursor|next|focus|focused|now)($|[-_\s])/i;
+  function currentIndex(leaves) {
+    const cls = (e) => (typeof e.className === 'string' ? e.className : '');
+    const hint = leaves.findIndex((e) => CUR_RX.test(cls(e)) || (e.parentElement && CUR_RX.test(cls(e.parentElement)) && e.parentElement.children.length === 1));
+    if (hint >= 0) return hint;
+    const sigs = leaves.map(styleSig);
+    const last = sigs[sigs.length - 1];
+    let u = sigs.length;
+    while (u > 0 && sigs[u - 1] === last) u--;
+    return u <= 1 ? 0 : u - 1;       // the char right before the "not yet typed" run is the current one
+  }
+  function gapBetween(a, b) {
+    try { const r = document.createRange(); r.setStartAfter(a); r.setEndBefore(b); return r.toString(); } catch (e) { return ''; }
+  }
+  async function runTyping(tr) {
+    const cps = clamp(Number(cfg.cps) || 9, 2, 40);
+    let leaves = tr.leaves;
+    let k = currentIndex(leaves);
+    log('info', 'Klaviatura məşqi: ' + leaves.length + ' simvol, ' + cps + ' simvol/san (API işlənmir)');
+    setStatus('act', 'Yazılır…');
+    try {
+      const inp = document.querySelector('input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]):not([type="button"]):not([type="submit"]),textarea');
+      if (inp) inp.focus({ preventScroll: true });
+    } catch (x) { /* ignore */ }
+    let strat = 0, blind = false, typed = 0, misses = 0;
+    while (k < leaves.length && !S.abort && !S.destroyed) {
+      const leaf = leaves[k];
+      if (!leaf.isConnected) {                 // the page re-rendered the text: find it again
+        const t2 = detectTyping();
+        if (!t2) break;
+        leaves = t2.leaves;
+        k = currentIndex(leaves);
+        if (k >= leaves.length) break;
+        continue;
+      }
+      let ch = leaf.textContent;
+      if (ch === '\u00a0') ch = ' ';
+      if (/^[↵⏎↩¶]$/.test(ch)) ch = '\n';
+      const next = leaves[k + 1];
+      const before = styleSig(leaf), beforeNext = next ? styleSig(next) : '';
+      const advanced = () => !leaf.isConnected || styleSig(leaf) !== before || (next && next.isConnected && styleSig(next) !== beforeNext);
+      const waitMoved = async () => { for (let w = 0; w < 10; w++) { await sleep(40); if (advanced()) return true; } return false; };
+      await pressChar(ch, strat);
+      let moved = blind || await waitMoved();
+      if (!moved && typed === 0) {              // first key: probe the other places a page may listen on
+        for (const s2 of [1, 2]) { await pressChar(ch, s2); if (await waitMoved()) { strat = s2; moved = true; break; } }
+      }
+      if (!moved) {
+        misses++;
+        if (typed === 0 || misses >= 3) { blind = true; log('err', 'Səhifə düymə basışına cavab verməyə bilər; yoxlamadan davam edirəm.'); }
+      }
+      typed++;
+      if (next && /^[ \u00a0]$/.test(gapBetween(leaf, next))) { await sleep(jit(1000 / cps)); await pressChar(' ', strat); }
+      k++;
+      await sleep(jit(1000 / cps) * (ch === ' ' ? 1.3 : 1) + (Math.random() < 0.05 ? 150 + Math.random() * 200 : 0));
+    }
+    log('ok', 'Yazıldı: ' + typed + ' simvol');
+    return typed;
+  }
+  function describeTyping() {
+    const tr = detectTyping();
+    return tr ? { found: true, chars: tr.leaves.length, text: tr.text.slice(0, 160), currentIndex: currentIndex(tr.leaves) } : { found: false };
+  }
+  const hasFields = () => Array.from(document.querySelectorAll('input:not([type="hidden"]):not([type="button"]):not([type="submit"]),textarea,select,[contenteditable="true"]')).some(shown);
+
   // ───────────────────────── solve ─────────────────────────
+  const answerCache = new Map();           // signature -> key-based actions (so the same question never costs a 2nd request)
+  const toKeyActions = (acts, reg) => acts.map((a) => {
+    const k = (id) => reg.get(id).key;
+    return a.op === 'drag' ? { op: 'drag', from: k(a.from), to: k(a.to) } : { op: a.op, id: k(a.id), value: a.value };
+  });
+  function fromKeyActions(kacts, reg) {
+    const byKey = new Map();
+    reg.forEach((v) => byKey.set(v.key, v.id));
+    const out = [];
+    for (const a of kacts) {
+      if (a.op === 'drag') { if (byKey.has(a.from) && byKey.has(a.to)) out.push({ op: 'drag', from: byKey.get(a.from), to: byKey.get(a.to) }); }
+      else if (byKey.has(a.id)) out.push(Object.assign({}, a, { id: byKey.get(a.id) }));
+    }
+    return out.length === kacts.length ? out : null;
+  }
+  function gateWait() {
+    const now = Date.now();
+    while (callTimes.length && now - callTimes[0] > 60000) callTimes.shift();
+    const cap = Math.max(1, Number(cfg.maxPerMin) || 6);
+    return callTimes.length < cap ? 0 : callTimes[0] + 60000 - now;
+  }
+  const btnSolve = $('#btnSolve');
+  function setStopBtn(on) { btnSolve.textContent = on ? 'Dayandır' : 'İndi həll et'; btnSolve.classList.toggle('stop', on); }
+  const idleText = () => (S.auto ? 'Sual gözlənilir…' : 'Hazırdır');
+  const toIdleLater = () => setTimeout(() => { if (!S.busy && !S.destroyed) setStatus('idle', idleText()); }, 2800);
+
+  // returns: ok | partial | typing | none | nokey | limit | error | skip
   async function solve(manual, pre) {
-    if (S.busy || S.destroyed) return;
-    if (!cfg.key) { flashKeyBox(); log('err', 'Əvvəlcə Gemini API açarını yaz.'); return; }
-    S.busy = true;
+    if (S.busy || S.destroyed) return 'skip';
+    S.busy = true; S.abort = false; setStopBtn(true);
     try {
       setStatus('scan', 'Skan edilir…');
-      await sleep(120);
+      await sleep(100);
+      const tr = hasFields() ? null : detectTyping();
+      if (tr) {
+        const n = await runTyping(tr);
+        if (n > 0) { S.solved++; updateStats(); }
+        if (cfg.submit && !S.abort) await autoSubmit();
+        setStatus('ok', S.abort ? 'Dayandırıldı' : 'Tamamlandı');
+        toIdleLater();
+        return 'typing';
+      }
+      if (!cfg.key) { flashKeyBox(); log('err', 'Bu sual üçün Gemini API açarı lazımdır.'); setStatus('idle', idleText()); return 'nokey'; }
       const task = pre || collect();
       if (!task.answerable) {
         log('dim', 'Ekranda cavablandırıla bilən sual tapılmadı.');
-        setStatus('idle', S.auto ? 'Sual gözlənilir…' : 'Hazırdır');
-        return;
+        setStatus('idle', idleText());
+        return 'none';
       }
-      log('info', task.items.length + ' element oxundu, Gemini-yə göndərilir');
-      setStatus('think', 'Gemini düşünür…');
-      const t0 = performance.now();
-      const res = await askGemini(task);
-      const ms = Math.round(performance.now() - t0);
-      const actions = sanitize(res && res.actions, task.reg);
-      log('ok', (res && res.kind ? res.kind : '?') + ' · ' + actions.length + ' əməliyyat · ' + ms + ' ms' + (res && res.reasoning ? ' · ' + String(res.reasoning).slice(0, 120) : ''));
-      if (!actions.length) { setStatus('ok', 'Cavab lazım deyil'); return; }
+      let actions = null;
+      const cached = manual ? null : answerCache.get(task.sig);
+      if (cached) { actions = fromKeyActions(cached, task.reg); if (actions) { S.cacheHits++; log('info', 'Cavab keşdən götürüldü (API işlənmədi)'); } }
+      if (!actions) {
+        log('info', task.items.length + ' element oxundu, Gemini-yə göndərilir');
+        setStatus('think', 'Gemini düşünür…');
+        const t0 = performance.now();
+        const res = await askGemini(task);
+        const ms = Math.round(performance.now() - t0);
+        actions = sanitize(res && res.actions, task.reg);
+        log('ok', (res && res.kind ? res.kind : '?') + ' · ' + actions.length + ' əməliyyat · ' + ms + ' ms' + (res && res.reasoning ? ' · ' + String(res.reasoning).slice(0, 120) : ''));
+        try { answerCache.set(task.sig, toKeyActions(actions, task.reg)); } catch (x) { /* ignore */ }
+      }
+      if (!actions.length) { setStatus('ok', 'Cavab lazım deyil'); toIdleLater(); return 'none'; }
       setStatus('act', 'Cavab yazılır…');
       ghost(true);
       const r = await runActions(actions, task);
       ghost(false);
-      if (cfg.submit && r.ok) await autoSubmit();
+      if (cfg.submit && r.ok && !S.abort) await autoSubmit();
       if (r.ok) { S.solved++; updateStats(); }
       setStatus(r.fail && !r.ok ? 'err' : 'ok', r.fail ? r.ok + ' uğurlu, ' + r.fail + ' alınmadı' : 'Tamamlandı');
-      setTimeout(() => { if (!S.busy && !S.destroyed) setStatus('idle', S.auto ? 'Sual gözlənilir…' : 'Hazırdır'); }, 2800);
+      toIdleLater();
+      return r.fail ? 'partial' : 'ok';
     } catch (e) {
       ghost(false);
       log('err', (e && e.message) || String(e));
+      if (e && e.rateLimited) { setStatus('err', 'Limit: ' + (e.secs >= 1800 ? 'gündəlik kvota' : e.secs + ' san')); return 'limit'; }
       setStatus('err', 'Xəta');
+      return 'error';
     } finally {
-      S.busy = false;
-      ghost(false);
+      S.busy = false; ghost(false); setStopBtn(false);
     }
   }
 
   // ───────────────────────── auto watcher ─────────────────────────
-  let mo = null, pollT = null, debT = null, lastSig = '', cooldown = 0;
-  const tries = new Map();
+  let mo = null, pollT = null, debT = null, cooldown = 0, warnedNoKey = false, gateLogged = 0;
+  const attempts = new Map();               // signature -> {n, last, ok}: a question is never solved twice in a loop
   function schedule(ms) { clearTimeout(debT); debT = setTimeout(tick, ms); }
   async function tick() {
-    if (!S.auto || S.busy || S.destroyed || Date.now() < cooldown) return;
-    let task;
-    try { task = collect(); } catch (e) { return; }
-    if (!task.answerable) { lastSig = ''; return; }
-    if (task.sig === lastSig) return;
-    const n = tries.get(task.sig) || 0;
-    lastSig = task.sig;
-    if (n >= 2) return;
-    tries.set(task.sig, n + 1);
-    await solve(false, task);
-    try { lastSig = collect().sig; } catch (e) { /* ignore */ }
-    cooldown = Date.now() + 2200;
+    if (!S.auto || S.busy || S.destroyed || !S.unlocked) return;
+    if (Date.now() < S.pauseUntil || Date.now() < cooldown) return;
+    let key, task = null, tr = null;
+    try {
+      tr = hasFields() ? null : detectTyping();
+      if (tr) key = 'typing:' + tr.sig;
+      else { task = collect(); if (!task.answerable) return; key = task.sig; }
+    } catch (e) { return; }
+    const rec = attempts.get(key);
+    if (rec && (rec.ok || rec.n >= 2 || Date.now() - rec.last < 12000)) return;
+    if (!tr) {
+      if (!cfg.key) {
+        if (!warnedNoKey) { warnedNoKey = true; log('err', 'Gemini API açarı yoxdur: yalnız klaviatura məşqləri həll olunur.'); }
+        return;
+      }
+      if (!(answerCache.has(key))) {
+        const w = gateWait();
+        if (w > 0) {
+          schedule(Math.min(w + 300, 20000));
+          if (Date.now() - gateLogged > 20000) { gateLogged = Date.now(); log('dim', 'Dəqiqəlik API limitinə çatdım, ' + Math.ceil(w / 1000) + ' san gözləyirəm.'); }
+          return;
+        }
+      }
+    }
+    const st = await solve(false, task);
+    cooldown = Date.now() + 2500;
+    if (st === 'limit' || st === 'skip' || st === 'nokey') return;
+    const r = attempts.get(key) || { n: 0, last: 0, ok: false };
+    r.n++; r.last = Date.now(); r.ok = (st === 'ok' || st === 'typing' || st === 'none');
+    attempts.set(key, r);
   }
   function startWatch() {
     if (mo) return;
@@ -1227,40 +1496,61 @@ Answer in the language of the question. Output JSON only, no markdown.`;
     clearTimeout(debT);
   }
   function setAuto(on) {
-    if (on && !cfg.key) { flashKeyBox(); log('err', 'Əvvəlcə Gemini API açarını yaz.'); return; }
     S.auto = on;
     setSwitch(el.swAuto, on);
     el.autoCard.classList.toggle('live', on);
     if (on) {
-      lastSig = '';
-      log('ok', 'Auto answer aktivdir');
+      log('ok', 'Auto answer aktivdir' + (cfg.key ? '' : ' (API açarı yoxdur: yalnız klaviatura məşqləri)'));
       setStatus('idle', 'Sual gözlənilir…');
+      warnedNoKey = false;
       startWatch();
       schedule(300);
     } else {
+      S.abort = true;
       stopWatch();
       log('dim', 'Auto answer dayandırıldı');
       setStatus('idle', 'Hazırdır');
     }
   }
 
+  // ───────────────────────── diagnostics (copy(__frost_algo__.snapshot())) ─────────────────────────
+  function snapshot() {
+    const t = collect();
+    const clone = document.body.cloneNode(true);
+    clone.querySelectorAll('script,style,svg,noscript,link,meta,iframe,canvas').forEach((n) => n.remove());
+    clone.querySelectorAll('*').forEach((n) => {
+      Array.from(n.attributes).forEach((a) => {
+        if (!/^(class|id|draggable|role|type|name|placeholder|data-[\w-]+|aria-[\w-]+|for|contenteditable|tabindex|disabled|checked)$/.test(a.name)) n.removeAttribute(a.name);
+        else if (a.value.length > 60) n.setAttribute(a.name, a.value.slice(0, 60));
+      });
+    });
+    let html = clone.innerHTML.replace(/\s+/g, ' ');
+    if (html.length > 14000) html = html.slice(0, 14000) + ' …[kəsildi]';
+    return JSON.stringify({ v: 1, page: location.host + location.pathname, found: t.items.map((i) => i.kind + ':' + i.label).slice(0, 80), typing: describeTyping(), text: t.text.slice(0, 2500), html: html }, null, 1);
+  }
+
   // ───────────────────────── settings wiring ─────────────────────────
   const updateDelayTxt = () => { el.delayTxt.textContent = Number(cfg.delay).toFixed(1) + ' san'; };
+  const updateLimitTxt = () => { el.limitTxt.textContent = cfg.maxPerMin + ' sorğu/dəq'; };
+  const updateCpsTxt = () => { el.cpsTxt.textContent = cfg.cps + ' simvol/san'; };
   el.apiKey.value = cfg.key || '';
   el.model.value = cfg.model || DEFAULT_MODEL;
   el.delay.value = String(cfg.delay);
+  el.limit.value = String(cfg.maxPerMin);
+  el.cps.value = String(cfg.cps);
   el.remember.checked = !!cfg.remember;
   setSwitch(el.swSubmit, !!cfg.submit);
-  updateDelayTxt();
-  updateStats();
+  updateDelayTxt(); updateLimitTxt(); updateCpsTxt(); updateStats();
 
-  el.apiKey.addEventListener('input', () => { cfg.key = el.apiKey.value.trim(); saveCfg(); });
+  el.apiKey.addEventListener('input', () => { cfg.key = el.apiKey.value.trim(); saveCfg(); S.pauseUntil = 0; });
   el.model.addEventListener('input', () => { cfg.model = el.model.value.trim() || DEFAULT_MODEL; saveCfg(); });
   el.delay.addEventListener('input', () => { cfg.delay = parseFloat(el.delay.value) || 0; updateDelayTxt(); saveCfg(); });
+  el.limit.addEventListener('input', () => { cfg.maxPerMin = parseInt(el.limit.value, 10) || 6; updateLimitTxt(); saveCfg(); });
+  el.cps.addEventListener('input', () => { cfg.cps = parseInt(el.cps.value, 10) || 9; updateCpsTxt(); saveCfg(); });
   el.remember.addEventListener('change', () => { cfg.remember = el.remember.checked; saveCfg(); });
   el.swSubmit.addEventListener('click', () => { cfg.submit = !cfg.submit; setSwitch(el.swSubmit, cfg.submit); saveCfg(); log('dim', 'Auto-submit ' + (cfg.submit ? 'aktiv' : 'söndürüldü')); });
   el.swAuto.addEventListener('click', () => setAuto(!S.auto));
-  $('#btnSolve').addEventListener('click', () => solve(true));
+  btnSolve.addEventListener('click', () => { if (S.busy) { S.abort = true; log('dim', 'Dayandırılır…'); } else solve(true); });
   $('#eye').addEventListener('click', () => { el.apiKey.type = el.apiKey.type === 'password' ? 'text' : 'password'; });
 
   // ───────────────────────── lifecycle ─────────────────────────
@@ -1276,7 +1566,7 @@ Answer in the language of the question. Output JSON only, no markdown.`;
     try { delete window[NS]; } catch (e) { window[NS] = undefined; }
   }
 
-  window[NS] = { version: '1.0.0', destroy: destroy, solve: function () { return solve(true); }, collect: collect, cfg: cfg, S: S };
+  window[NS] = { version: '1.1.0', destroy: destroy, solve: function () { return solve(true); }, collect: collect, snapshot: snapshot, typing: describeTyping, cfg: cfg, S: S };
 
   (async function boot() {
     await playHello();
