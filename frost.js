@@ -19,7 +19,7 @@
   const STORE = 'frost.algo.cfg.v1';
   const HELLO_D = 'M36 222 C78 205 112 120 132 46 C140 16 172 18 162 62 C152 108 128 172 122 208 C120 226 100 222 106 192 C112 160 128 138 152 134 C180 130 196 156 188 184 C184 204 196 216 214 198 C230 184 238 152 258 142 C282 130 296 160 268 176 C248 186 226 192 232 208 C238 224 272 216 294 190 C308 172 320 96 338 48 C346 20 378 22 368 66 C360 110 340 172 342 204 C344 224 368 214 386 190 C400 172 412 96 430 48 C438 20 470 22 460 66 C452 110 432 172 434 204 C436 224 460 214 476 186 C484 170 500 148 522 146 C554 144 564 196 528 208 C500 216 482 186 498 160 C512 140 552 130 596 150';
 
-  const cfg = Object.assign({ key: '', model: DEFAULT_MODEL, remember: true, submit: false, delay: 1.2, maxPerMin: 6, cps: 9 }, readCfg());
+  const cfg = Object.assign({ key: '', model: DEFAULT_MODEL, remember: true, submit: false, delay: 1.2, maxPerMin: 6, cps: 9, theme: 'ice', confetti: true, snakeBest: 0 }, readCfg());
   function readCfg() { try { return JSON.parse(localStorage.getItem(STORE) || '{}') || {}; } catch (e) { return {}; } }
   function saveCfg() {
     try {
@@ -41,7 +41,7 @@
 :host{all:initial}
 *,*::before,*::after{box-sizing:border-box}
 h2,h3,p{margin:0}
-.r{--frost:#eaf4ff;--mute:#a3b7d6;--dim:#6f84a8;--ice:#7fd0ff;--glacier:#4f7cff;--aurora:#b58cff;--rose:#ff8ac4;--ok:#5df2c0;--bad:#ff6b8a;--warn:#ffd27a;--line:rgba(190,220,255,.16);position:fixed;inset:0;pointer-events:none;color:var(--frost);font:400 13.5px/1.45 "SF Pro Text","Segoe UI Variable Text","Segoe UI",Inter,system-ui,-apple-system,Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+.r{--frost:#eaf4ff;--mute:#a3b7d6;--dim:#6f84a8;--ice:#7fd0ff;--glacier:#4f7cff;--aurora:#b58cff;--rose:#ff8ac4;--ok:#5df2c0;--bad:#ff6b8a;--warn:#ffd27a;--line:rgba(190,220,255,.16);--g1:#5d8bff;--g2:#7fd0ff;position:fixed;inset:0;pointer-events:none;color:var(--frost);font:400 13.5px/1.45 "SF Pro Text","Segoe UI Variable Text","Segoe UI",Inter,system-ui,-apple-system,Roboto,sans-serif;-webkit-font-smoothing:antialiased}
 .r :where(button){all:unset;box-sizing:border-box;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .r :where(input){font:inherit;color:inherit;background:none;border:0;outline:0;margin:0}
 .r button:focus-visible{outline:2px solid var(--ice);outline-offset:2px}
@@ -88,7 +88,7 @@ h2,h3,p{margin:0}
 .kmsg{min-height:20px;font-size:12.5px;color:var(--mute);margin-bottom:10px}
 .kmsg.bad{color:var(--bad)}
 .kmsg.ok{color:var(--ok)}
-.btn{display:inline-flex;align-items:center;justify-content:center;padding:11px 22px;border-radius:13px;font-weight:600;background:linear-gradient(135deg,#5d8bff,#7fd0ff);color:#04112b;box-shadow:0 10px 26px rgba(79,124,255,.38);transition:transform .2s,box-shadow .2s,filter .2s}
+.btn{display:inline-flex;align-items:center;justify-content:center;padding:11px 22px;border-radius:13px;font-weight:600;background:linear-gradient(135deg,var(--g1),var(--g2));color:#04112b;box-shadow:0 10px 26px rgba(79,124,255,.38);transition:transform .2s,box-shadow .2s,filter .2s}
 .btn:hover{transform:translateY(-1px);filter:brightness(1.06);box-shadow:0 14px 30px rgba(79,124,255,.5)}
 .btn:active{transform:translateY(1px) scale(.985)}
 .btn.stop{background:linear-gradient(135deg,#ff6b8a,#ff9a6b);color:#2a0612;box-shadow:0 10px 26px rgba(255,107,138,.35)}
@@ -108,7 +108,7 @@ h2,h3,p{margin:0}
 .brand svg{width:24px;height:24px;stroke:var(--ice);fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;transition:transform .8s cubic-bezier(.3,1.2,.5,1)}
 .brand:hover svg{transform:rotate(60deg)}
 .tabs{position:relative;display:flex;flex-direction:column;gap:4px}
-.ind{position:absolute;left:0;top:0;right:0;height:44px;border-radius:13px;background:linear-gradient(135deg,rgba(93,139,255,.34),rgba(127,208,255,.18));border:1px solid rgba(127,208,255,.35);box-shadow:inset 0 1px 0 rgba(255,255,255,.18);transition:transform .45s cubic-bezier(.3,1.35,.5,1)}
+.ind{position:absolute;left:0;top:0;right:0;height:44px;border-radius:13px;background:linear-gradient(135deg,rgba(93,139,255,.34),rgba(127,208,255,.18));border:1px solid rgba(127,208,255,.35);box-shadow:inset 0 1px 0 rgba(255,255,255,.18);transition:transform .45s cubic-bezier(.3,1.35,.5,1);background:linear-gradient(135deg,color-mix(in srgb,var(--glacier) 34%,transparent),color-mix(in srgb,var(--ice) 18%,transparent));border-color:color-mix(in srgb,var(--ice) 35%,transparent)}
 .tab{position:relative;height:44px;padding:0 16px;display:flex;align-items:center;border-radius:13px;font-weight:500;color:var(--mute);transition:color .25s}
 .tab:hover,.tab.on{color:var(--frost)}
 .railfoot{margin-top:auto;padding:0 8px;font-size:11px;color:var(--dim)}
@@ -200,6 +200,45 @@ h2,h3,p{margin:0}
 .muted{color:var(--mute);font-size:12.5px;margin-top:14px;max-width:46ch}
 .pill{position:absolute;right:22px;bottom:22px;pointer-events:auto;padding:10px 20px;border-radius:999px;font-weight:300;font-size:17px;letter-spacing:-.01em;animation:pillin .5s cubic-bezier(.3,1.5,.5,1) both}
 @keyframes pillin{from{transform:scale(.3);opacity:0}to{transform:none;opacity:1}}
+/* logic tab */
+.lrow{display:flex;gap:8px;margin-top:10px;align-items:stretch}
+.lrow .inp{flex:1;margin-top:0}
+.lrow .inp input{font-size:14px;padding:10px 12px}
+.sm{padding:8px 14px;font-size:12.5px;border-radius:11px}
+.lhint{color:var(--dim);font-size:11.5px;margin:6px 2px 0;line-height:1.5;font-variant-ligatures:none}
+.lerr{color:var(--bad);font-size:12.5px;margin-top:6px;min-height:18px}
+.tblwrap{margin-top:4px;max-height:176px;overflow:auto;border-radius:12px;border:1px solid var(--line);background:rgba(3,7,20,.45);scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.2) transparent}
+.tbl{border-collapse:collapse;width:100%;font-size:12.5px;text-align:center}
+.tbl th{position:sticky;top:0;background:#0d1530;color:var(--mute);font-weight:500;padding:6px 10px;white-space:nowrap;border-bottom:1px solid var(--line)}
+.tbl td{padding:4px 10px;border-bottom:1px solid rgba(190,220,255,.07);font-variant-numeric:tabular-nums}
+.tbl td.t1{color:var(--ok)}
+.tbl td.t0{color:var(--dim)}
+.tbl .res{border-left:1px solid var(--line);font-weight:600}
+.linfo{color:var(--mute);font-size:12px}
+.sub{font-size:15px;margin-top:16px}
+.conv{display:grid;grid-template-columns:1fr 1fr;gap:8px 10px;margin-top:8px}
+.conv span{font-size:11.5px;color:var(--mute)}
+.conv .inp{margin-top:3px}
+.conv .inp.bad{border-color:var(--bad)}
+/* fun tab */
+.fun-top{display:flex;align-items:center;justify-content:space-between;margin-top:8px}
+.fun-top .ph{margin:0}
+.swatches{display:flex;gap:8px}
+.sws{width:22px;height:22px;border-radius:50%;border:2px solid transparent;transition:transform .25s cubic-bezier(.3,1.6,.5,1),border-color .2s}
+.sws:hover{transform:scale(1.18)}
+.sws.on{border-color:#fff}
+.play{display:grid;grid-template-columns:300px 1fr;gap:14px;margin-top:12px}
+#snake{width:300px;height:200px;border-radius:14px;background:#070d1f;border:1px solid var(--line);outline:0;display:block}
+#snake:focus{border-color:color-mix(in srgb,var(--ice) 60%,transparent)}
+.side{display:flex;flex-direction:column;gap:8px;min-width:0}
+.stat{display:flex;justify-content:space-between;align-items:baseline;color:var(--mute);font-size:12.5px}
+.stat b{color:var(--frost);font-size:18px;font-weight:600}
+.pomo{margin-top:14px;padding:12px 16px;display:flex;align-items:center;gap:12px}
+.pomo .time{font-size:30px;font-weight:300;letter-spacing:.02em;font-variant-numeric:tabular-nums;min-width:92px}
+.pomo .mode{font-size:11.5px;color:var(--mute);min-width:44px}
+.pomo .bar{flex:1;height:5px;border-radius:3px;background:rgba(255,255,255,.12);overflow:hidden}
+.pomo .bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--g1),var(--g2));transition:width .5s linear}
+.fx{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:5}
 @media (prefers-reduced-motion:reduce){.avatar,.avatar span{animation:none}.key.drop,.win.drop{animation-duration:.01s}}
 `;
 
@@ -253,10 +292,12 @@ h2,h3,p{margin:0}
     <nav class="tabs" id="tabs">
       <span class="ind" id="ind"></span>
       <button class="tab on" data-tab="main">Main</button>
+      <button class="tab" data-tab="logic">Logic</button>
+      <button class="tab" data-tab="fun">Fun</button>
       <button class="tab" data-tab="why">Why?</button>
       <button class="tab" data-tab="credits">Credits</button>
     </nav>
-    <div class="railfoot">algoritmika · v1.1</div>
+    <div class="railfoot">algoritmika · v1.2</div>
   </aside>
 
   <section class="content">
@@ -301,6 +342,41 @@ h2,h3,p{margin:0}
           <span class="stats" id="stats">0 həll · 0 sorğu</span>
         </div>
         <div class="log" id="log"></div>
+      </div>
+
+      <div class="pane" data-pane="logic">
+        <h3 class="ph">Həqiqilik cədvəli</h3>
+        <div class="lrow"><div class="inp"><input id="lgExpr" type="text" placeholder="A and (B or not C)" spellcheck="false" autocomplete="off"></div><button class="btn" id="lgGo">Qur</button></div>
+        <div class="lhint" id="lgHint"></div>
+        <div class="lerr" id="lgErr"></div>
+        <div class="tblwrap" id="lgOut" hidden></div>
+        <div class="acts" id="lgActs" hidden><button class="btn soft sm" id="lgCopy">Kopyala</button><span class="linfo" id="lgInfo"></span></div>
+        <h3 class="ph sub">Say sistemləri</h3>
+        <div class="conv">
+          <label><span>Onluq (10)</span><div class="inp" data-b="10"><input id="cv10" type="text" inputmode="numeric" autocomplete="off" spellcheck="false" placeholder="255"></div></label>
+          <label><span>İkili (2)</span><div class="inp" data-b="2"><input id="cv2" type="text" autocomplete="off" spellcheck="false" placeholder="1111 1111"></div></label>
+          <label><span>Səkkizlik (8)</span><div class="inp" data-b="8"><input id="cv8" type="text" autocomplete="off" spellcheck="false" placeholder="377"></div></label>
+          <label><span>On altılıq (16)</span><div class="inp" data-b="16"><input id="cv16" type="text" autocomplete="off" spellcheck="false" placeholder="FF"></div></label>
+        </div>
+      </div>
+
+      <div class="pane" data-pane="fun">
+        <div class="fun-top"><h3 class="ph">Fun</h3><div class="swatches" id="swatches"></div></div>
+        <div class="play">
+          <canvas id="snake" width="300" height="200" tabindex="0" aria-label="Snake oyunu"></canvas>
+          <div class="side">
+            <div class="stat"><span>Xal</span><b id="snScore">0</b></div>
+            <div class="stat"><span>Rekord</span><b id="snBest">0</b></div>
+            <button class="btn sm" id="snGo">Başla</button>
+            <label class="chk"><input type="checkbox" id="chkConfetti"> konfeti (həll olunanda)</label>
+            <button class="btn soft sm" id="btnConfetti">Konfeti sına</button>
+            <div class="lhint">Oxlar və ya WASD. Boşluq: pauza.</div>
+          </div>
+        </div>
+        <div class="card pomo">
+          <div class="time" id="pmTime">25:00</div><div class="mode" id="pmMode">Fokus</div><div class="bar"><i id="pmBar"></i></div>
+          <button class="btn sm" id="pmGo">Başla</button><button class="btn soft sm" id="pmReset">Sıfırla</button>
+        </div>
       </div>
 
       <div class="pane" data-pane="why">
@@ -569,7 +645,7 @@ h2,h3,p{margin:0}
   window.addEventListener('resize', onResize);
 
   // ───────────────────────── tabs ─────────────────────────
-  const TAB_ORDER = ['main', 'why', 'credits'];
+  const TAB_ORDER = ['main', 'logic', 'fun', 'why', 'credits'];
   function moveIndicator(name) { el.ind.style.transform = 'translateY(' + TAB_ORDER.indexOf(name) * 48 + 'px)'; }
   function showTab(name) {
     S.tab = name;
@@ -577,6 +653,7 @@ h2,h3,p{margin:0}
     $$('.pane').forEach((p) => p.classList.toggle('on', p.dataset.pane === name));
     moveIndicator(name);
     if (name === 'why') startWhy(); else stopWhy();
+    onTabChange(name);
   }
   $$('.tab').forEach((b) => b.addEventListener('click', () => showTab(b.dataset.tab)));
 
@@ -951,7 +1028,8 @@ Answer in the language of the question. Output JSON only, no markdown.`;
     throw new Error('Gemini cavabı JSON deyil.');
   }
   async function askGemini(task) {
-    const chain = [cfg.model || DEFAULT_MODEL].concat(FALLBACK_MODELS.filter((m) => m !== cfg.model));
+    const primary = String(cfg.model || '').trim().replace(/^models\//i, '').toLowerCase().replace(/\s+/g, '-') || DEFAULT_MODEL;
+    const chain = [primary].concat(FALLBACK_MODELS.filter((m) => m !== primary));
     let last = null, soonest = Infinity;
     for (const m of chain) {
       const until = modelBlock.get(m) || 0;
@@ -1226,9 +1304,9 @@ Answer in the language of the question. Output JSON only, no markdown.`;
     const a = document.activeElement;
     return (!a || a === host || a === document.documentElement) ? document.body : a;
   }
-  async function pressChar(ch, strat) {
+  async function pressChar(ch, strat, forced) {
     const o = keyFor(ch);
-    const t = keyTarget(strat || 0);
+    const t = forced || keyTarget(strat || 0);
     if (o.shift) fireKey('keydown', { key: 'Shift', code: 'ShiftLeft', kc: 16, shift: true, ch: 0 }, t);
     const d = fireKey('keydown', o, t);
     const p = fireKey('keypress', o, t);
@@ -1243,6 +1321,85 @@ Answer in the language of the question. Output JSON only, no markdown.`;
     }
     fireKey('keyup', o, t);
     if (o.shift) fireKey('keyup', { key: 'Shift', code: 'ShiftLeft', kc: 16, shift: false, ch: 0 }, t);
+  }
+
+  function pressSpecial(name, t) {
+    const map = { Backspace: ['Backspace', 8], Delete: ['Delete', 46] };
+    const o = { key: name, code: map[name][0], kc: map[name][1], shift: false, ch: 0 };
+    fireKey('keydown', o, t);
+    fireKey('keyup', o, t);
+  }
+
+
+  // ───────────────────────── Monaco typing trainer (".typing-pattern" shows the text, ".typing-editor" takes the keys) ─────────────────────────
+  function monacoText(ed) {
+    const vl = ed.querySelector('.view-lines');
+    if (!vl) return '';
+    return Array.from(vl.querySelectorAll('.view-line'))
+      .map((l) => ({ top: parseFloat(l.style.top) || 0, text: (l.textContent || '').replace(/\u00a0/g, ' ') }))
+      .sort((a, b) => a.top - b.top)
+      .map((l) => l.text).join('\n');
+  }
+  // window.monaco exists on many Monaco setups: it gives synchronous access to the real editor models
+  function monacoApi(domEl) {
+    try {
+      const m = window.monaco;
+      if (!m || !m.editor || !m.editor.getEditors) return null;
+      return m.editor.getEditors().find((e) => e.getDomNode && e.getDomNode() === domEl) || null;
+    } catch (x) { return null; }
+  }
+  function detectMonacoTyping() {
+    const pat = document.querySelector('.monaco-editor.typing-pattern');
+    const edt = document.querySelector('.monaco-editor.typing-editor');
+    if (!pat || !edt) return null;
+    const ta = edt.querySelector('textarea.inputarea');
+    if (!ta) return null;
+    const pApi = monacoApi(pat);
+    const target = (pApi && pApi.getValue ? pApi.getValue() : monacoText(pat)).replace(/\r\n/g, '\n');
+    if (!target.trim()) return null;
+    return { mode: 'monaco', pat: pat, edt: edt, ta: ta, target: target, text: target, count: target.length, sig: hash('monaco:' + target) };
+  }
+  async function runMonacoTyping(tr) {
+    const cps = clamp(Number(cfg.cps) || 9, 2, 40);
+    const target = tr.target;
+    const api = monacoApi(tr.edt);
+    const read = () => (api && api.getValue ? api.getValue() : monacoText(tr.edt));
+    let typed = read();
+    if (!target.startsWith(typed)) {
+      log('dim', 'Redaktorda başqa mətn var, təmizlənir…');
+      if (api && api.setValue) api.setValue('');
+      else { tr.ta.focus({ preventScroll: true }); for (let i = 0; i < typed.length + 2; i++) pressSpecial('Backspace', tr.ta); await sleep(300); }
+      typed = read();
+      if (!target.startsWith(typed)) throw new Error('Redaktoru təmizləmək alınmadı.');
+    }
+    log('info', 'Klaviatura məşqi: ' + (target.length - typed.length) + ' simvol qalıb, ' + cps + ' simvol/san (API işlənmir)');
+    setStatus('act', 'Yazılır…');
+    try { tr.edt.scrollIntoView({ block: 'center' }); } catch (x) { /* ignore */ }
+    let written = 0, fails = 0, viaApi = false;
+    while (typed.length < target.length && !S.abort && !S.destroyed) {
+      const ch = target[typed.length];
+      if (document.activeElement !== tr.ta) tr.ta.focus({ preventScroll: true });
+      if (viaApi) api.trigger('frost', 'type', { text: ch }); else await pressChar(ch, 0, tr.ta);
+      let now = typed;
+      for (let w = 0; w < 20; w++) { await sleep(30); now = read(); if (now !== typed) break; }
+      if (now === typed) {
+        fails++;
+        if (fails === 2 && api && api.trigger) { api.trigger('frost', 'type', { text: ch }); await sleep(60); now = read(); if (now !== typed) { viaApi = true; log('dim', 'Düymə hadisələri qəbul olunmadı, redaktorun öz komandası ilə yazılır.'); } }
+        if (now === typed) {
+          if (fails >= 4) throw new Error('Redaktor düymə basışlarını qəbul etmədi (simvol: ' + JSON.stringify(ch) + ').');
+          continue;
+        }
+      }
+      fails = 0;
+      if (!target.startsWith(now)) {
+        if (api && api.setValue && target.startsWith(typed)) { api.setValue(typed); log('dim', 'Redaktor artıq simvol əlavə etdi, geri qaytarıldı.'); await sleep(80); now = read(); if (!target.startsWith(now)) throw new Error('Redaktor gözlənilməz mətn yazdı.'); }
+        else throw new Error('Redaktor gözlənilməz mətn yazdı: ' + JSON.stringify(now.slice(-12)));
+      }
+      typed = now; written++;
+      await sleep(jit(1000 / cps) * (ch === ' ' ? 1.3 : 1) + (Math.random() < 0.05 ? 150 + Math.random() * 200 : 0));
+    }
+    log('ok', 'Yazıldı: ' + written + ' simvol');
+    return written;
   }
 
   const LEAF_BAD = /^(SCRIPT|STYLE|NOSCRIPT|SVG|svg|INPUT|TEXTAREA|SELECT|BUTTON|KBD|A|OPTION|IMG|CANVAS|IFRAME|BR)$/;
@@ -1262,7 +1419,7 @@ Answer in the language of the question. Output JSON only, no markdown.`;
   }
   // Finds the text a typing trainer shows: a block of >= 10 one-character elements that reads like language
   // (repeated letters), and is not the on-screen keyboard (every key appears once).
-  function detectTyping() {
+  function detectLeafTyping() {
     const cand = [];
     for (const e of document.body.querySelectorAll('*')) {
       if (!isLeaf1(e) || /^[\s\u00a0]$/.test(e.textContent)) continue;
@@ -1295,6 +1452,7 @@ Answer in the language of the question. Output JSON only, no markdown.`;
     const text = leaves.map((e) => e.textContent).join('');
     return { root: root, leaves: leaves, text: text, sig: hash(text) };
   }
+  function detectTyping() { return detectMonacoTyping() || detectLeafTyping(); }
   function styleSig(e) {
     const c = getComputedStyle(e);
     return [c.color, c.backgroundColor, c.fontWeight, c.textDecorationLine, c.borderTopWidth, c.borderTopColor, c.outlineWidth, c.boxShadow, c.opacity].join('|');
@@ -1314,6 +1472,7 @@ Answer in the language of the question. Output JSON only, no markdown.`;
     try { const r = document.createRange(); r.setStartAfter(a); r.setEndBefore(b); return r.toString(); } catch (e) { return ''; }
   }
   async function runTyping(tr) {
+    if (tr.mode === 'monaco') return runMonacoTyping(tr);
     const cps = clamp(Number(cfg.cps) || 9, 2, 40);
     let leaves = tr.leaves;
     let k = currentIndex(leaves);
@@ -1327,7 +1486,7 @@ Answer in the language of the question. Output JSON only, no markdown.`;
     while (k < leaves.length && !S.abort && !S.destroyed) {
       const leaf = leaves[k];
       if (!leaf.isConnected) {                 // the page re-rendered the text: find it again
-        const t2 = detectTyping();
+        const t2 = detectLeafTyping();
         if (!t2) break;
         leaves = t2.leaves;
         k = currentIndex(leaves);
@@ -1360,9 +1519,10 @@ Answer in the language of the question. Output JSON only, no markdown.`;
   }
   function describeTyping() {
     const tr = detectTyping();
-    return tr ? { found: true, chars: tr.leaves.length, text: tr.text.slice(0, 160), currentIndex: currentIndex(tr.leaves) } : { found: false };
+    if (!tr) return { found: false, monacoEditors: document.querySelectorAll('.monaco-editor').length };
+    return tr.mode === 'monaco' ? { found: true, mode: 'monaco', chars: tr.count, text: tr.text.slice(0, 160) } : { found: true, mode: 'leaves', chars: tr.leaves.length, text: tr.text.slice(0, 160), currentIndex: currentIndex(tr.leaves) };
   }
-  const hasFields = () => Array.from(document.querySelectorAll('input:not([type="hidden"]):not([type="button"]):not([type="submit"]),textarea,select,[contenteditable="true"]')).some(shown);
+  const hasFields = () => Array.from(document.querySelectorAll('input:not([type="hidden"]):not([type="button"]):not([type="submit"]),textarea,select,[contenteditable="true"]')).some((f) => shown(f) && !f.closest('.monaco-editor'));
 
   // ───────────────────────── solve ─────────────────────────
   const answerCache = new Map();           // signature -> key-based actions (so the same question never costs a 2nd request)
@@ -1401,7 +1561,7 @@ Answer in the language of the question. Output JSON only, no markdown.`;
       const tr = hasFields() ? null : detectTyping();
       if (tr) {
         const n = await runTyping(tr);
-        if (n > 0) { S.solved++; updateStats(); }
+        if (n > 0) { S.solved++; updateStats(); celebrate(); }
         if (cfg.submit && !S.abort) await autoSubmit();
         setStatus('ok', S.abort ? 'Dayandırıldı' : 'Tamamlandı');
         toIdleLater();
@@ -1433,7 +1593,7 @@ Answer in the language of the question. Output JSON only, no markdown.`;
       const r = await runActions(actions, task);
       ghost(false);
       if (cfg.submit && r.ok && !S.abort) await autoSubmit();
-      if (r.ok) { S.solved++; updateStats(); }
+      if (r.ok) { S.solved++; updateStats(); if (!r.fail) celebrate(); }
       setStatus(r.fail && !r.ok ? 'err' : 'ok', r.fail ? r.ok + ' uğurlu, ' + r.fail + ' alınmadı' : 'Tamamlandı');
       toIdleLater();
       return r.fail ? 'partial' : 'ok';
@@ -1553,6 +1713,398 @@ Answer in the language of the question. Output JSON only, no markdown.`;
   btnSolve.addEventListener('click', () => { if (S.busy) { S.abort = true; log('dim', 'Dayandırılır…'); } else solve(true); });
   $('#eye').addEventListener('click', () => { el.apiKey.type = el.apiKey.type === 'password' ? 'text' : 'password'; });
 
+
+  // ───────────────────────── Logic tab: truth tables + number bases ─────────────────────────
+  const LG = (function () {
+    const WORDS = { and: 'and', 'və': 'and', ve: 'and', or: 'or', veya: 'or', 'vəya': 'or', not: 'not', deyil: 'not', 'dəyil': 'not', yox: 'not', xor: 'xor', nand: 'nand', nor: 'nor', xnor: 'xnor', imp: 'imp', eqv: 'eqv', 'true': 1, 'false': 0, 'doğru': 1, yalan: 0 };
+    const SYMS = [['<->', 'eqv'], ['<=>', 'eqv'], ['↔', 'eqv'], ['⇔', 'eqv'], ['->', 'imp'], ['=>', 'imp'], ['→', 'imp'], ['⇒', 'imp'], ['&&', 'and'], ['||', 'or'], ['==', 'eqv'], ['&', 'and'], ['∧', 'and'], ['*', 'and'], ['·', 'and'], ['|', 'or'], ['∨', 'or'], ['+', 'or'], ['!', 'not'], ['~', 'not'], ['¬', 'not'], ['^', 'xor'], ['⊕', 'xor'], ['⊼', 'nand'], ['⊽', 'nor'], ['(', '('], [')', ')'], ['=', 'eqv']];
+    const SHOW = { and: '∧', or: '∨', xor: '⊕', nand: '⊼', nor: '⊽', imp: '→', eqv: '↔' };
+    const fail = (msg, pos) => Object.assign(new Error(msg + (pos != null ? ' (mövqe ' + (pos + 1) + ')' : '')), { logic: true });
+
+    function tokenize(src) {
+      const out = [];
+      let i = 0;
+      while (i < src.length) {
+        if (/\s/.test(src[i])) { i++; continue; }
+        const hit = SYMS.find((s) => src.startsWith(s[0], i));
+        if (hit) { out.push({ t: hit[1], pos: i }); i += hit[0].length; continue; }
+        const m = /^(?:[\p{L}_][\p{L}\p{N}_]*|\d+)/u.exec(src.slice(i));
+        if (!m) throw fail('Tanınmayan simvol "' + src[i] + '"', i);
+        const w = m[0];
+        const key = WORDS[w.toLowerCase()] !== undefined ? w.toLowerCase() : w.toLocaleLowerCase('az');
+        if (/^\d+$/.test(w)) {
+          if (w !== '0' && w !== '1') throw fail('Yalnız 0 və 1 sabitləri olar', i);
+          out.push({ t: 'const', v: w === '1', pos: i });
+        } else if (WORDS[key] === 1 || WORDS[key] === 0) out.push({ t: 'const', v: WORDS[key] === 1, pos: i });
+        else if (WORDS[key]) out.push({ t: WORDS[key], pos: i });
+        else out.push({ t: 'var', n: w, pos: i });
+        i += w.length;
+      }
+      return out;
+    }
+
+    function parse(tokens) {
+      let p = 0;
+      const more = () => p < tokens.length;
+      function atom() {
+        const k = tokens[p];
+        if (!k) throw fail('İfadə tamamlanmayıb');
+        if (k.t === 'var') { p++; return { t: 'var', n: k.n }; }
+        if (k.t === 'const') { p++; return { t: 'const', v: k.v }; }
+        if (k.t === 'not') { p++; return { t: 'not', a: atom() }; }
+        if (k.t === '(') {
+          p++;
+          const e = eqv();
+          if (!tokens[p] || tokens[p].t !== ')') throw fail('")" çatışmır', k.pos);
+          p++;
+          return e;
+        }
+        throw fail('Burada operator gözlənilmirdi', k.pos);
+      }
+      const level = (ops, next, map) => function () {
+        let l = next();
+        while (tokens[p] && ops.indexOf(tokens[p].t) >= 0) {
+          const op = tokens[p++].t;
+          l = { t: 'bin', op: (map && map[op]) || op, a: l, b: next() };
+        }
+        return l;
+      };
+      const and_ = level(['and', 'nand'], atom);
+      const xor_ = level(['xor', 'xnor'], and_, { xnor: 'eqv' });
+      const or_ = level(['or', 'nor'], xor_);
+      function imp_() {
+        const l = or_();
+        if (tokens[p] && tokens[p].t === 'imp') { p++; return { t: 'bin', op: 'imp', a: l, b: imp_() }; }
+        return l;
+      }
+      const eqv = level(['eqv'], imp_);
+      const ast = eqv();
+      if (more()) throw fail('Artıq simvol / operator çatışmır', tokens[p].pos);
+      return ast;
+    }
+
+    function ev(n, env) {
+      if (n.t === 'var') return env[n.n];
+      if (n.t === 'const') return n.v;
+      if (n.t === 'not') return !ev(n.a, env);
+      const a = ev(n.a, env), b = ev(n.b, env);
+      switch (n.op) {
+        case 'and': return a && b;
+        case 'or': return a || b;
+        case 'xor': return a !== b;
+        case 'nand': return !(a && b);
+        case 'nor': return !(a || b);
+        case 'imp': return !a || b;
+        default: return a === b;
+      }
+    }
+    function str(n) {
+      const wrap = (x) => (x.t === 'bin' ? '(' + str(x) + ')' : str(x));
+      if (n.t === 'var') return n.n;
+      if (n.t === 'const') return n.v ? '1' : '0';
+      if (n.t === 'not') return '¬' + wrap(n.a);
+      return wrap(n.a) + ' ' + SHOW[n.op] + ' ' + wrap(n.b);
+    }
+
+    function table(src) {
+      if (!src.trim()) throw fail('İfadə yaz');
+      const ast = parse(tokenize(src));
+      const vars = [];
+      const cols = [];
+      const seen = new Set();
+      (function walk(n) {
+        if (n.t === 'var') { if (vars.indexOf(n.n) < 0) vars.push(n.n); return; }
+        if (n.t === 'const') return;
+        walk(n.a);
+        if (n.t === 'bin') walk(n.b);
+        const label = str(n);
+        if (!seen.has(label)) { seen.add(label); cols.push({ label: label, node: n }); }
+      })(ast);
+      if (!cols.length) cols.push({ label: str(ast), node: ast });
+      if (vars.length > 8) throw fail('Ən çox 8 dəyişən dəstəklənir');
+      const shown = cols.length > 12 ? [cols[cols.length - 1]] : cols;     // keep the table readable
+      const n = 1 << vars.length;
+      const rows = [];
+      for (let r = 0; r < n; r++) {
+        const env = {};
+        vars.forEach((v, i) => { env[v] = !!((r >> (vars.length - 1 - i)) & 1); });
+        rows.push({ vars: vars.map((v) => (env[v] ? 1 : 0)), vals: shown.map((c) => (ev(c.node, env) ? 1 : 0)) });
+      }
+      return { vars: vars, cols: shown.map((c) => c.label), rows: rows, expr: str(ast) };
+    }
+    return { table: table, tokenize: tokenize, parse: parse };
+  })();
+
+  (function logicUi() {
+    const input = $('#lgExpr'), out = $('#lgOut'), err = $('#lgErr'), acts = $('#lgActs'), info = $('#lgInfo');
+    $('#lgHint').textContent = 'VƏ: and, &, *   VEYA: or, |, +   DEYİL: not, !, ~   XOR: ^   →: ->   ↔: <->   (A VƏ deyil B də olar)';
+    let last = null;
+    function run(showErr) {
+      const src = input.value;
+      err.textContent = '';
+      if (!src.trim()) { out.hidden = true; acts.hidden = true; return; }
+      try {
+        const t = LG.table(src);
+        last = t;
+        out.textContent = '';
+        const tbl = document.createElement('table');
+        tbl.className = 'tbl';
+        const hr = tbl.createTHead().insertRow();
+        t.vars.forEach((v) => { const th = document.createElement('th'); th.textContent = v; hr.appendChild(th); });
+        t.cols.forEach((c, i) => { const th = document.createElement('th'); th.textContent = c; if (i === t.cols.length - 1) th.className = 'res'; hr.appendChild(th); });
+        const body = tbl.createTBody();
+        t.rows.forEach((r) => {
+          const tr = body.insertRow();
+          r.vars.forEach((v) => { const td = tr.insertCell(); td.textContent = v; td.className = v ? 't1' : 't0'; });
+          r.vals.forEach((v, i) => { const td = tr.insertCell(); td.textContent = v; td.className = (v ? 't1' : 't0') + (i === r.vals.length - 1 ? ' res' : ''); });
+        });
+        out.appendChild(tbl);
+        out.hidden = false; acts.hidden = false;
+        const fin = t.rows.map((r) => r.vals[r.vals.length - 1]);
+        const ones = fin.reduce((a, b) => a + b, 0);
+        info.textContent = ones === fin.length ? 'Tautologiya (həmişə 1)' : ones === 0 ? 'Ziddiyyət (həmişə 0)' : 'Təsadüfi: ' + ones + '/' + fin.length + ' sətirdə 1';
+      } catch (e) {
+        out.hidden = true; acts.hidden = true; last = null;
+        if (showErr || !(e && e.logic)) err.textContent = (e && e.message) || String(e);
+      }
+    }
+    input.addEventListener('input', () => run(false));
+    input.addEventListener('keydown', (e) => { if (e.key === 'Enter') run(true); });
+    $('#lgGo').addEventListener('click', () => run(true));
+    $('#lgCopy').addEventListener('click', async () => {
+      if (!last) return;
+      const lines = [last.vars.concat(last.cols).join('\t')].concat(last.rows.map((r) => r.vars.concat(r.vals).join('\t')));
+      const text = lines.join('\n');
+      try { await navigator.clipboard.writeText(text); } catch (e) {
+        const ta = document.createElement('textarea');
+        ta.value = text; wrap.appendChild(ta); ta.select();
+        try { document.execCommand('copy'); } catch (x) { /* ignore */ }
+        ta.remove();
+      }
+      info.textContent = 'Kopyalandı (Excel / Sheets-ə yapışdıra bilərsən)';
+    });
+
+    // number bases
+    const fields = [2, 8, 10, 16].map((b) => ({ b: b, input: $('#cv' + b), box: $('#cv' + b).parentElement }));
+    const DIG = '0123456789abcdef';
+    function toBig(text, base) {
+      let s = text.replace(/[\s_]/g, '').toLowerCase();
+      let neg = false;
+      if (s[0] === '-') { neg = true; s = s.slice(1); }
+      if (!s) return null;
+      let v = 0n;
+      for (const ch of s) {
+        const d = DIG.indexOf(ch);
+        if (d < 0 || d >= base) return undefined;
+        v = v * BigInt(base) + BigInt(d);
+      }
+      return neg ? -v : v;
+    }
+    function fmt(v, base) {
+      const neg = v < 0n;
+      let s = (neg ? -v : v).toString(base).toUpperCase();
+      if (base === 2) s = s.replace(/(?=(\d{4})+$)/g, ' ').trim();
+      return (neg ? '-' : '') + s;
+    }
+    fields.forEach((f) => f.input.addEventListener('input', () => {
+      const raw = f.input.value;
+      if (raw.length > 80) { f.box.classList.add('bad'); return; }
+      const v = toBig(raw, f.b);
+      f.box.classList.toggle('bad', v === undefined);
+      if (v === undefined) return;
+      fields.forEach((o) => { if (o !== f) o.input.value = v === null ? '' : fmt(v, o.b); });
+    }));
+  })();
+
+  // ───────────────────────── Fun tab ─────────────────────────
+  const funApi = {};
+  const THEMES = {
+    ice: { ice: '#7fd0ff', glacier: '#4f7cff', g1: '#5d8bff', g2: '#7fd0ff' },
+    aurora: { ice: '#c3a6ff', glacier: '#8a5cff', g1: '#8a6bff', g2: '#d3a8ff' },
+    rose: { ice: '#ff9ec8', glacier: '#ff5f9e', g1: '#ff6ba6', g2: '#ffb18a' },
+    mint: { ice: '#7ff0cf', glacier: '#2fc6a0', g1: '#33d1a5', g2: '#8af5d3' },
+    amber: { ice: '#ffd27a', glacier: '#ff9a3c', g1: '#ff9f43', g2: '#ffd27a' }
+  };
+  const cssVar = (n) => getComputedStyle(wrap).getPropertyValue(n).trim() || '#7fd0ff';
+  function applyTheme(name) {
+    const t = THEMES[name] || THEMES.ice;
+    Object.keys(t).forEach((k) => wrap.style.setProperty('--' + k, t[k]));
+    cfg.theme = THEMES[name] ? name : 'ice';
+    saveCfg();
+    $$('.sws').forEach((b) => b.classList.toggle('on', b.dataset.theme === cfg.theme));
+  }
+  Object.keys(THEMES).forEach((name) => {
+    const b = document.createElement('button');
+    b.className = 'sws';
+    b.dataset.theme = name;
+    b.setAttribute('aria-label', 'Tema: ' + name);
+    b.style.background = 'linear-gradient(135deg,' + THEMES[name].g1 + ',' + THEMES[name].g2 + ')';
+    b.addEventListener('click', () => applyTheme(name));
+    $('#swatches').appendChild(b);
+  });
+  applyTheme(cfg.theme);
+  funApi.theme = applyTheme;
+
+  // confetti
+  function confetti(ox, oy) {
+    if (S.destroyed) return;
+    const cv = document.createElement('canvas');
+    cv.className = 'fx';
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    cv.width = innerWidth * dpr; cv.height = innerHeight * dpr;
+    wrap.appendChild(cv);
+    const g = cv.getContext('2d');
+    g.scale(dpr, dpr);
+    const colors = [cssVar('--ice'), cssVar('--aurora'), cssVar('--rose'), cssVar('--warn'), cssVar('--ok')];
+    const x0 = ox == null ? innerWidth / 2 : ox, y0 = oy == null ? innerHeight * 0.4 : oy;
+    const parts = Array.from({ length: 120 }, () => ({ x: x0, y: y0, vx: (Math.random() - 0.5) * 15, vy: -Math.random() * 13 - 4, w: Math.random() * 7 + 4, h: Math.random() * 4 + 3, c: colors[Math.floor(Math.random() * colors.length)], r: Math.random() * 6, vr: (Math.random() - 0.5) * 0.4, life: 1 }));
+    let last = performance.now();
+    (function frame(now) {
+      if (S.destroyed) { cv.remove(); return; }
+      const dt = Math.min(34, now - last) / 16.7;
+      last = now;
+      g.clearRect(0, 0, innerWidth, innerHeight);
+      let alive = 0;
+      for (const p of parts) {
+        p.vy += 0.35 * dt; p.vx *= 0.995; p.x += p.vx * dt; p.y += p.vy * dt; p.r += p.vr * dt; p.life -= 0.0075 * dt;
+        if (p.life <= 0 || p.y > innerHeight + 20) continue;
+        alive++;
+        g.save(); g.globalAlpha = Math.max(0, Math.min(1, p.life * 1.6)); g.translate(p.x, p.y); g.rotate(p.r); g.fillStyle = p.c; g.fillRect(-p.w / 2, -p.h / 2, p.w, p.h); g.restore();
+      }
+      if (alive) requestAnimationFrame(frame); else cv.remove();
+    })(last);
+  }
+  function celebrate() { if (cfg.confetti && !REDUCED) confetti(); }
+  funApi.confetti = confetti;
+  const chkConfetti = $('#chkConfetti');
+  chkConfetti.checked = !!cfg.confetti;
+  chkConfetti.addEventListener('change', () => { cfg.confetti = chkConfetti.checked; saveCfg(); });
+  $('#btnConfetti').addEventListener('click', () => confetti());
+
+  // snake
+  funApi.snake = (function () {
+    const cv = $('#snake');
+    const COLS = 15, ROWS = 10, CELL = 20;
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    cv.width = COLS * CELL * dpr; cv.height = ROWS * CELL * dpr;
+    const g = cv.getContext('2d');
+    g.scale(dpr, dpr);
+    const scoreEl = $('#snScore'), bestEl = $('#snBest'), goBtn = $('#snGo');
+    let snake, dir, nextDir, food, score, timer = null, over = false;
+    bestEl.textContent = String(cfg.snakeBest || 0);
+    const rnd = (n) => Math.floor(Math.random() * n);
+    function place() {
+      do { food = { x: rnd(COLS), y: rnd(ROWS) }; } while (snake.some((s) => s.x === food.x && s.y === food.y));
+    }
+    function reset() {
+      snake = [{ x: 7, y: 5 }, { x: 6, y: 5 }, { x: 5, y: 5 }];
+      dir = { x: 1, y: 0 }; nextDir = dir; score = 0; over = false;
+      scoreEl.textContent = '0';
+      place(); draw();
+    }
+    function draw(msg) {
+      g.fillStyle = '#070d1f'; g.fillRect(0, 0, COLS * CELL, ROWS * CELL);
+      g.strokeStyle = 'rgba(190,220,255,.05)'; g.lineWidth = 1;
+      for (let x = 1; x < COLS; x++) { g.beginPath(); g.moveTo(x * CELL, 0); g.lineTo(x * CELL, ROWS * CELL); g.stroke(); }
+      for (let y = 1; y < ROWS; y++) { g.beginPath(); g.moveTo(0, y * CELL); g.lineTo(COLS * CELL, y * CELL); g.stroke(); }
+      g.shadowColor = cssVar('--rose'); g.shadowBlur = 12; g.fillStyle = cssVar('--rose');
+      g.beginPath(); g.arc(food.x * CELL + CELL / 2, food.y * CELL + CELL / 2, CELL / 2 - 4, 0, Math.PI * 2); g.fill();
+      g.shadowBlur = 0;
+      const a = cssVar('--ice'), b = cssVar('--aurora');
+      snake.forEach((s, i) => {
+        g.fillStyle = i === 0 ? '#fff' : (i % 2 ? a : b);
+        g.globalAlpha = i === 0 ? 1 : Math.max(0.35, 1 - i * 0.04);
+        g.beginPath(); g.roundRect ? g.roundRect(s.x * CELL + 1.5, s.y * CELL + 1.5, CELL - 3, CELL - 3, 5) : g.rect(s.x * CELL + 1.5, s.y * CELL + 1.5, CELL - 3, CELL - 3); g.fill();
+      });
+      g.globalAlpha = 1;
+      if (msg) {
+        g.fillStyle = 'rgba(3,7,20,.66)'; g.fillRect(0, 0, COLS * CELL, ROWS * CELL);
+        g.fillStyle = '#eaf4ff'; g.textAlign = 'center'; g.font = '600 20px system-ui,sans-serif'; g.fillText(msg, COLS * CELL / 2, ROWS * CELL / 2 - 4);
+        g.font = '12px system-ui,sans-serif'; g.fillStyle = '#a3b7d6'; g.fillText('Enter / klik: başla', COLS * CELL / 2, ROWS * CELL / 2 + 18);
+      }
+    }
+    function stopTimer() { if (timer) { clearInterval(timer); timer = null; } goBtn.textContent = over ? 'Yenidən' : 'Başla'; }
+    function end() {
+      over = true; stopTimer();
+      if (score > (cfg.snakeBest || 0)) { cfg.snakeBest = score; saveCfg(); bestEl.textContent = String(score); }
+      draw('Oyun bitdi · ' + score);
+    }
+    function step() {
+      dir = nextDir;
+      const h = { x: snake[0].x + dir.x, y: snake[0].y + dir.y };
+      if (h.x < 0 || h.y < 0 || h.x >= COLS || h.y >= ROWS || snake.some((s) => s.x === h.x && s.y === h.y)) return end();
+      snake.unshift(h);
+      if (h.x === food.x && h.y === food.y) { score++; scoreEl.textContent = String(score); place(); } else snake.pop();
+      draw();
+    }
+    function start() {
+      if (S.destroyed) return;
+      if (over) reset();
+      if (timer) return;
+      timer = setInterval(step, 115);
+      goBtn.textContent = 'Pauza';
+      cv.focus();
+    }
+    function pause() { if (timer) { stopTimer(); draw('Pauza'); } }
+    const toggle = () => (timer ? pause() : start());
+    const DIRS = { ArrowUp: [0, -1], w: [0, -1], W: [0, -1], ArrowDown: [0, 1], s: [0, 1], S: [0, 1], ArrowLeft: [-1, 0], a: [-1, 0], A: [-1, 0], ArrowRight: [1, 0], d: [1, 0], D: [1, 0] };
+    cv.addEventListener('keydown', (e) => {
+      if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); toggle(); return; }
+      const d = DIRS[e.key];
+      if (!d) return;
+      e.preventDefault();
+      if (!timer) start();
+      if (d[0] !== -dir.x || d[1] !== -dir.y) nextDir = { x: d[0], y: d[1] };
+    });
+    cv.addEventListener('click', () => { cv.focus(); if (!timer) start(); });
+    cv.addEventListener('blur', () => { if (timer) pause(); });
+    goBtn.addEventListener('click', toggle);
+    reset(); draw('Snake');
+    return {
+      start: start, pause: pause, toggle: toggle,
+      state: () => ({ score: score, over: over, running: !!timer, length: snake.length, head: snake[0], dir: dir }),
+      _food: (x, y) => { food = { x: x, y: y }; draw(); }
+    };
+  })();
+
+  // pomodoro
+  funApi.pomo = (function () {
+    const timeEl = $('#pmTime'), modeEl = $('#pmMode'), barEl = $('#pmBar'), goBtn = $('#pmGo');
+    const P = { focus: 25 * 60, rest: 5 * 60 };
+    let mode = 'focus', left = P.focus, total = P.focus, timer = null;
+    const draw = () => {
+      timeEl.textContent = String(Math.floor(left / 60)).padStart(2, '0') + ':' + String(left % 60).padStart(2, '0');
+      modeEl.textContent = mode === 'focus' ? 'Fokus' : 'Fasilə';
+      barEl.style.width = (100 * (1 - left / total)) + '%';
+      goBtn.textContent = timer ? 'Pauza' : 'Başla';
+    };
+    function beep() {
+      try {
+        const Ctx = window.AudioContext || window.webkitAudioContext;
+        const ac = new Ctx(), o = ac.createOscillator(), gn = ac.createGain();
+        o.frequency.value = 880; o.connect(gn); gn.connect(ac.destination);
+        gn.gain.setValueAtTime(0.0001, ac.currentTime); gn.gain.exponentialRampToValueAtTime(0.18, ac.currentTime + 0.02); gn.gain.exponentialRampToValueAtTime(0.0001, ac.currentTime + 0.5);
+        o.start(); o.stop(ac.currentTime + 0.55);
+      } catch (e) { /* no audio */ }
+    }
+    function stop() { if (timer) { clearInterval(timer); timer = null; } }
+    function tickOnce() {
+      left--;
+      if (left <= 0) {
+        stop(); beep(); if (!REDUCED) confetti();
+        log('ok', mode === 'focus' ? 'Fokus bitdi. Fasilə vaxtıdır.' : 'Fasilə bitdi.');
+        mode = mode === 'focus' ? 'rest' : 'focus'; total = left = P[mode];
+      }
+      draw();
+    }
+    goBtn.addEventListener('click', () => { if (timer) stop(); else timer = setInterval(tickOnce, 1000); draw(); });
+    $('#pmReset').addEventListener('click', () => { stop(); mode = 'focus'; total = left = P.focus; draw(); });
+    draw();
+    return { set: (sec, m) => { P[m || mode] = sec; if (!m || m === mode) total = left = sec; draw(); }, state: () => ({ mode: mode, left: left, running: !!timer }), stop: stop };
+  })();
+
+  function onTabChange(name) { if (name !== 'fun' && funApi.snake) funApi.snake.pause(); }
+
   // ───────────────────────── lifecycle ─────────────────────────
   function destroy() {
     if (S.destroyed) return;
@@ -1560,13 +2112,14 @@ Answer in the language of the question. Output JSON only, no markdown.`;
     S.auto = false;
     stopWatch();
     stopWhy();
+    try { funApi.snake.pause(); funApi.pomo.stop(); } catch (e) { /* ignore */ }
     window.removeEventListener('keydown', onHotkey, true);
     window.removeEventListener('resize', onResize);
     try { host.remove(); } catch (e) { /* ignore */ }
     try { delete window[NS]; } catch (e) { window[NS] = undefined; }
   }
 
-  window[NS] = { version: '1.1.0', destroy: destroy, solve: function () { return solve(true); }, collect: collect, snapshot: snapshot, typing: describeTyping, cfg: cfg, S: S };
+  window[NS] = { version: '1.2.0', destroy: destroy, solve: function () { return solve(true); }, collect: collect, snapshot: snapshot, typing: describeTyping, logic: LG, fun: funApi, cfg: cfg, S: S };
 
   (async function boot() {
     await playHello();
